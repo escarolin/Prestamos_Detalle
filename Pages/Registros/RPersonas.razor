@@ -1,0 +1,154 @@
+﻿@page "/Personas"
+@page "/Personas/{PersonaId:int}"
+
+@using Prestamos_Detalle.Models;
+@using Prestamos_Detalle.BLL;
+@inject IToastService toast
+
+<EditForm Model="personas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h1>Registro de Personas</h1>
+        </div>
+        @*PersonaID y boton al lado*@
+        <div class="card-body">
+            <form />
+            <div class="form-row align-items-center">
+                <div class="col">
+                    <div class="form-group">
+                        <label>PersonaId</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="personas.PersonaId" class="form-control col-4" />
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar"> <i class="oi oi-magnifying-glass m-1" />Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Nombres*@
+            <div class="form-group">
+                <label>Nombres</label>
+                <InputText @bind-Value="personas.Nombres" class="form-control" />
+                <ValidationMessage For="@(() => personas.Nombres)" />
+            </div>
+
+            @*Telefono*@
+            <div class="form-group">
+                <label>Telefono</label>
+                <InputText @bind-Value="personas.Telefono" class="form-control" />
+                <ValidationMessage For="@(() => personas.Telefono)" />
+            </div>
+
+            @*Cedula*@
+            <div class="form-group">
+                <label>Cedula</label>
+                <InputText @bind-Value="personas.Cedula" class="form-control" />
+                <ValidationMessage For="@(() => personas.Cedula)" />
+            </div>
+
+            @*Dirección*@
+            <div class="form-group">
+                <label>Dirección</label>
+                <InputText @bind-Value="personas.Direccion" class="form-control" />
+                <ValidationMessage For="@(() => personas.Direccion)" />
+            </div>
+            <div class="form-group">
+                <label>Balance</label>
+                <InputNumber @bind-Value="personas.Balance" class="form-control " readonly="true" />
+                <ValidationMessage For="@(() => personas.Balance)" />
+            </div>
+
+            @*Fecha de Nacimiento*@
+            <div class="form-group">
+                <label>Fecha de Nacimiento</label>
+                <InputDate @bind-Value="personas.FechaNacimiento" class="form-control" />
+                <ValidationMessage For="@(() => personas.FechaNacimiento)" />
+            </div>
+        </div>
+
+        @*Botones*@
+        <div class="card-footer">
+            <div class="form-group text-center" display: inline-block>
+                <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">
+                    <i class="oi oi-file mr-2" width="30" height="30" viewBox="0 0 20 20" />Nuevo
+                </button>
+
+                <button type="submit" class="btn btn-lg btn-success">
+                    <i class="oi oi-account-login" style="transform:rotate(90deg)" width="30" height="30" viewBox="0 0 20 20" />Guardar
+                </button>
+
+                <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">
+                    <i class="oi oi-trash mr-2" /> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code
+{
+        [Parameter]
+
+        public int PersonaId { get; set; }
+
+private Personas personas = new Personas();
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+        Buscar();
+    }
+
+    public void Nuevo()
+    {
+        personas = new Personas();
+    }
+
+
+    private void Buscar()
+    {
+        if (personas.PersonaId > 0)
+        {
+            var encontrado = PersonasBLL.Buscar(personas.PersonaId);
+
+            if (encontrado != null)
+                this.personas = encontrado;
+            else
+                toast.ShowWarning("No encontrado");
+        }
+    }
+
+    public void Guardar()
+    {
+        bool guardo;
+
+        guardo = PersonasBLL.Guardar(personas);
+
+        if (guardo)
+        {
+            Nuevo();
+            toast.ShowSuccess("Guardado correctamente");
+        }
+        else
+            toast.ShowError("No fue posible guardar");
+    }
+
+    public void Eliminar()
+    {
+        bool elimino;
+
+        elimino = PersonasBLL.Eliminar(personas.PersonaId);
+
+        if (elimino)
+        {
+            Nuevo();
+            toast.ShowSuccess("Eliminado correctamente");
+        }
+        else
+            toast.ShowError("No fue posible eliminar");
+    }
+}
